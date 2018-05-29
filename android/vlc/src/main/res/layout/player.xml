@@ -3,60 +3,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
+    android:id="@+id/vlc_container"
     tools:context="com.ghondar.vlcplayer.PlayerActivity">
 
-    <LinearLayout
-        android:id="@+id/vlc_container"
+
+    <TextureView
+        android:id="@+id/vlc_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
+
+    <FrameLayout
+        android:id="@+id/vlc_overlay"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical">
+        android:background="#69000000"
+        android:visibility="gone">
 
-        <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@android:color/black"
-            android:visibility="visible">
+        <ImageButton
+            android:id="@+id/vlc_button_scale"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="bottom|right"
+            android:background="@drawable/selectable_background"
+            android:elevation="0dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_av_aspect_ratio" />
 
-            <TextureView
-                android:id="@+id/vlc_surface"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center" />
+        <ImageView
+            android:id="@+id/vlc_button_play_pause"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_action_pause_over_video" />
 
-            <FrameLayout
-                android:id="@+id/vlc_overlay"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="#69000000">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageButton
-                        android:id="@+id/vlc_button_scale"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
-                        android:background="@drawable/selectable_background"
-                        android:elevation="0dp"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_av_aspect_ratio" />
-                </RelativeLayout>
-
-                <ImageView
-                    android:id="@+id/vlc_button_play_pause"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_action_pause_over_video" />
-
-            </FrameLayout>
-
-
-        </FrameLayout>
-    </LinearLayout>
-
+    </FrameLayout>
 </FrameLayout>

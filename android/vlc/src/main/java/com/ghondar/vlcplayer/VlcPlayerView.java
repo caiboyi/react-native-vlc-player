@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -23,12 +24,10 @@ import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.vlcplayer.R;
@@ -53,7 +52,7 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
     public final static String LOCATION = "srcVideo";
 
     // display surface
-    private LinearLayout layout;
+    private FrameLayout layout;
     private FrameLayout vlcOverlay;
     private TextureView mTextureView;
     private SurfaceTexture mSurfaceTexture;
@@ -99,7 +98,7 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
     private void initLayout() {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.player, this, false);
         addView(view, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        layout = (LinearLayout) findViewById(R.id.vlc_container);
+        layout = (FrameLayout) findViewById(R.id.vlc_container);
         mTextureView = (TextureView) findViewById(R.id.vlc_surface);
 
         vlcOverlay = (FrameLayout) findViewById(R.id.vlc_overlay);
@@ -167,53 +166,53 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
 
     private void setupControls() {
         // PLAY PAUSE
-        vlcButtonPlayPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mMediaPlayer == null) {
-                    return;
-                }
-                if (mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.pause();
-                    vlcButtonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_play_over_video));
-                } else {
-                    mMediaPlayer.play();
-                    vlcButtonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_pause_over_video));
-                }
-            }
-        });
-
-        vlcButtonScale.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mCurrentSize < SURFACE_ORIGINAL) {
-                    mCurrentSize++;
-                } else {
-                    mCurrentSize = 0;
-                }
-                changeSurfaceSize(true);
-            }
-        });
+//        vlcButtonPlayPause.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (mMediaPlayer == null) {
+//                    return;
+//                }
+//                if (mMediaPlayer.isPlaying()) {
+//                    mMediaPlayer.pause();
+//                    vlcButtonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_play_over_video));
+//                } else {
+//                    mMediaPlayer.play();
+//                    vlcButtonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_pause_over_video));
+//                }
+//            }
+//        });
+//
+//        vlcButtonScale.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (mCurrentSize < SURFACE_ORIGINAL) {
+//                    mCurrentSize++;
+//                } else {
+//                    mCurrentSize = 0;
+//                }
+//                changeSurfaceSize(true);
+//            }
+//        });
         // OVERLAY
-        handlerOverlay = new Handler();
-        runnableOverlay = new Runnable() {
-            @Override
-            public void run() {
-                vlcOverlay.setVisibility(View.GONE);
-                toggleFullscreen(true);
-            }
-        };
-        final long timeToDisappear = 3000;
-        handlerOverlay.postDelayed(runnableOverlay, timeToDisappear);
-        layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                vlcOverlay.setVisibility(View.VISIBLE);
-
-                handlerOverlay.removeCallbacks(runnableOverlay);
-                handlerOverlay.postDelayed(runnableOverlay, timeToDisappear);
-            }
-        });
+//        handlerOverlay = new Handler();
+//        runnableOverlay = new Runnable() {
+//            @Override
+//            public void run() {
+//                vlcOverlay.setVisibility(View.GONE);
+//                toggleFullscreen(true);
+//            }
+//        };
+//        final long timeToDisappear = 3000;
+//        handlerOverlay.postDelayed(runnableOverlay, timeToDisappear);
+//        layout.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                vlcOverlay.setVisibility(View.VISIBLE);
+//
+//                handlerOverlay.removeCallbacks(runnableOverlay);
+//                handlerOverlay.postDelayed(runnableOverlay, timeToDisappear);
+//            }
+//        });
     }
 
     @Override
@@ -256,17 +255,12 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
      */
     public void capturePic() {
         if (TextUtils.equals(Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED)) {
-            File allDir = new File(Environment.getExternalStorageDirectory(), Constant.DIR);
-            if (!allDir.exists() || !allDir.isDirectory()) {
-                allDir.mkdirs();
-            }
-            File screenShotsDir = new File(allDir, Constant.SCREEN_SHOTS);
-            if (!screenShotsDir.exists() || !screenShotsDir.isDirectory()) {
-                screenShotsDir.mkdirs();
-            }
+            String galleryPath = Environment.getExternalStorageDirectory()
+                    + File.separator + Environment.DIRECTORY_DCIM
+                    + File.separator + "Camera" + File.separator;
             if (mTextureView != null) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
-                File file = new File(screenShotsDir, dateFormat.format(new Date()) + ".png");
+                File file = new File(galleryPath, dateFormat.format(new Date()) + ".png");
                 if (!file.exists()) {
                     try {
                         file.createNewFile();
@@ -282,6 +276,7 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
                     fos.flush();
                     fos.close();
                     Log.e("capture", "capture 7777");
+                    ScannerByMedia(getContext(), file.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -297,6 +292,16 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
         } else {
             Log.e("capture", "capture failure");
         }
+    }
+
+    /**
+     * 扫描更新图库图片
+     * @param context
+     * @param path
+     */
+    private void ScannerByMedia(Context context, String path) {
+        MediaScannerConnection.scanFile(context, new String[]{path}, null, null);
+        Log.v("TAG", "media scanner completed");
     }
 
     /**
