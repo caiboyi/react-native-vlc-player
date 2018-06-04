@@ -5,7 +5,7 @@
  */
 
 import React, { Component } from 'react';
-import {NativeModules} from 'react-native';
+import {NativeModules,DeviceEventEmitter} from 'react-native';
 import { play } from 'react-native-vlc-player'
 
 var VideoView = require('./VlcPlayerView');
@@ -32,6 +32,11 @@ export default class App extends Component<Props> {
 	}
   _press_play(){
 	  this.video.play();
+	  DeviceEventEmitter.addListener('VideoControll', function  (msg) {
+			console.log(msg);
+			// msg['action'] boolean  true 点击成功
+			NativeModules.ToastExample.show('play action:'+msg['action']);
+        });
   }
   
   _press_savePic(){

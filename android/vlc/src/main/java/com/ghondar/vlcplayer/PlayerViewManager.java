@@ -15,10 +15,15 @@ import javax.annotation.Nullable;
 
 public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
     public static final String REACT_CLASS = "VideoView";
+	
+	public static final String VIDEO_CONTROLL = "VideoControll";
+    public static final String ACTION = "action";
+	
+	
     public static final String COMMAND_PLAY_NAME = "play";
     public static final String COMMAND_PAUSE_NAME = "pause";
     public static final String COMMAND_FULL_SCREEN_NAME = "full_screen";
-    public static final String COMMAN_CAPTURE_NAME = "capture";
+    public static final String COMMAND_CAPTURE_NAME = "capture";
     public static final String COMMAND_RECORD_VIDEO_START_NAME = "record_start";
     public static final String COMMAND_RECORD_VIDEO_END_NAME = "record_end";
 
@@ -32,6 +37,7 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
 
     private VlcPlayerView mVlcPlayerView;
     private String url;
+	private ReactContext mContext;
     public LifecycleEventListener mActLifeCallback = new LifecycleEventListener() {
         @Override
         public void onHostResume() {
@@ -67,6 +73,7 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
 
     @Override
     protected VlcPlayerView createViewInstance(ThemedReactContext reactContext) {
+		mContext = reactContext;
         reactContext.addLifecycleEventListener(mActLifeCallback);
         mVlcPlayerView = new VlcPlayerView(reactContext);
         mVlcPlayerView.toggleFullscreen(true);
@@ -92,27 +99,31 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
         return MapBuilder.of(COMMAND_PLAY_NAME, COMMAND_PLAY_ID,
                 COMMAND_PAUSE_NAME, COMMAND_PAUSE_ID,
                 COMMAND_FULL_SCREEN_NAME, COMMAND_FULL_SCREEN_ID,
-                COMMAN_CAPTURE_NAME, COMMAN_CAPTURE_ID,
+                COMMAND_CAPTURE_NAME, COMMAN_CAPTURE_ID,
                 COMMAND_RECORD_VIDEO_START_NAME, COMMAND_RECORD_VIDEO_START_ID,
                 COMMAND_RECORD_VIDEO_END_NAME, COMMAND_RECORD_VIDEO_END_ID);
     }
 
-    @Override
+@Override
     public void receiveCommand(VlcPlayerView root, int commandId, @Nullable ReadableArray args) {
         super.receiveCommand(root, commandId, args);
         Log.e("PlayerViewManager", "receiveCommand:" + commandId);
         switch (commandId) {
             case COMMAND_PLAY_ID:
                 root.resumePlay();
+                sendEvent(mContext, COMMAND_PLAY_NAME, true);
                 break;
             case COMMAND_PAUSE_ID:
                 root.pausePlay();
+                sendEvent(mContext, COMMAND_PAUSE_NAME, true);
                 break;
             case COMMAND_FULL_SCREEN_ID:
                 root.fullScreen();
+                sendEvent(mContext, COMMAND_FULL_SCREEN_NAME, true);
                 break;
             case COMMAN_CAPTURE_ID:
                 root.capturePic();
+                sendEvent(mContext, COMMAND_CAPTURE_NAME, true);
                 break;
             case COMMAND_RECORD_VIDEO_START_ID:
 
@@ -122,5 +133,18 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
                 break;
             default:
         }
+    }
+
+    private void sendEvent(ReactContext mContext, String key, boolean isSuccess) {
+        if (mContext != null) {
+            mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(VIDEO_CONTROLL, createConnectivityEventMap(key, isSuccess));
+        }
+    }
+
+    private WritableMap createConnectivityEventMap(String key, boolean isSuccess) {
+        WritableMap event = new WritableNativeMap();
+        event.putBoolean(ACTION, isSuccess);
+        return event;
     }
 }
