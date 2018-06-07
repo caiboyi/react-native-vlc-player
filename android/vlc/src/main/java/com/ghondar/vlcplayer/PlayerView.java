@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkLibLoader;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
@@ -89,6 +90,10 @@ public class PlayerView extends FrameLayout implements View.OnClickListener {
     public void setUrl(String url) {
         this.mUrl = url;
         this.mVideoView.setVideoPath(this.mUrl);
+    }
+
+    public void setOnErrorListener(IMediaPlayer.OnErrorListener listener){
+        this.mVideoView.setOnErrorListener(listener);
     }
 
     public void starPlay() {

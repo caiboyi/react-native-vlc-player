@@ -17,12 +17,14 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import tv.danmaku.ijk.media.player.IMediaPlayer;
+
 public class PlayerViewManager extends SimpleViewManager<PlayerView> {
     public static final String REACT_CLASS = "VideoView";
 
     public static final String VIDEO_CONTROLL = "VideoControll";
+    public static final String VIDEO_ERROR = "VideoError";
     public static final String ACTION = "action";
-
 
     public static final String COMMAND_PLAY_NAME = "play";
     public static final String COMMAND_PAUSE_NAME = "pause";
@@ -79,6 +81,13 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         mContext = reactContext;
         reactContext.addLifecycleEventListener(mActLifeCallback);
         mVlcPlayerView = new PlayerView(reactContext);
+        mVlcPlayerView.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
+                sendErrorEvent(mContext);
+                return true;
+            }
+        });
         return mVlcPlayerView;
     }
 
@@ -117,23 +126,23 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         switch (commandId) {
             case COMMAND_PLAY_ID:
                 root.starPlay();
-                sendEvent(mContext, COMMAND_PLAY_NAME, true);
+                sendEvent(mContext, ACTION, true);
                 break;
             case COMMAND_PAUSE_ID:
                 root.pause();
-                sendEvent(mContext, COMMAND_PAUSE_NAME, true);
+                sendEvent(mContext, ACTION, true);
                 break;
             case COMMAND_FULL_SCREEN_ID:
                 Player2Activity.go(mContext, url);
-                sendEvent(mContext, COMMAND_FULL_SCREEN_NAME, true);
+                sendEvent(mContext, ACTION, true);
                 break;
             case COMMAN_CAPTURE_ID:
                 try {
                     boolean result = root.capturePic();
-                    sendEvent(mContext, COMMAND_CAPTURE_NAME, result);
+                    sendEvent(mContext, ACTION, result);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    sendEvent(mContext, COMMAND_CAPTURE_NAME, false);
+                    sendEvent(mContext, ACTION, false);
                 }
                 break;
             case COMMAND_RECORD_VIDEO_START_ID:
@@ -149,13 +158,20 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
     private void sendEvent(ReactContext mContext, String key, boolean isSuccess) {
         if (mContext != null) {
             mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit(VIDEO_CONTROLL, createConnectivityEventMap(key, isSuccess));
+                    .emit(VIDEO_CONTROLL, createConnectivityEventMap(ACTION, isSuccess));
+        }
+    }
+
+    private void sendErrorEvent(ReactContext mContext) {
+        if (mContext != null) {
+            mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(VIDEO_ERROR, createConnectivityEventMap(ACTION, true));
         }
     }
 
     private WritableMap createConnectivityEventMap(String key, boolean isSuccess) {
         WritableMap event = new WritableNativeMap();
-        event.putBoolean(ACTION, isSuccess);
+        event.putBoolean(key, isSuccess);
         return event;
     }
 
