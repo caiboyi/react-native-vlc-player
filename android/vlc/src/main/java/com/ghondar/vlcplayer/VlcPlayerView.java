@@ -46,7 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
+@Deprecated
 public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
 
     public final static String LOCATION = "srcVideo";
@@ -83,6 +83,7 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
 
     private int mCurrentSize = SURFACE_BEST_FIT;
     private String url;
+    private boolean isPause = false;
 
 
     public VlcPlayerView(@NonNull Context context) {
@@ -224,21 +225,29 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
     /**
      * 恢复播放
      */
-    public void resumePlay() {
-        if (mMediaPlayer != null) {
-            mMediaPlayer.play();
-            vlcButtonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_pause_over_video));
+    public boolean resumePlay() {
+        if (!isPause) {
+            if (mMediaPlayer != null) {
+                mMediaPlayer.play();
+                vlcButtonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_pause_over_video));
+                isPause = false;
+                return true;
+            }
         }
+        return false;
     }
 
     /**
      * 暂停播放
      */
-    public void pausePlay() {
-        if (mMediaPlayer != null) {
+    public boolean pausePlay() {
+        if (isPlaying()) {
             mMediaPlayer.pause();
+            isPause = true;
             vlcButtonPlayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_play_over_video));
+            return true;
         }
+        return false;
     }
 
     /**
@@ -253,7 +262,8 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
     /**
      * 保存当前视频播放的这一帧到本地
      */
-    public void capturePic() {
+    public boolean capturePic() {
+        boolean isResult = true;
         if (TextUtils.equals(Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED)) {
             String galleryPath = Environment.getExternalStorageDirectory()
                     + File.separator + Environment.DIRECTORY_DCIM
@@ -279,6 +289,7 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
                     ScannerByMedia(getContext(), file.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
+                    isResult = false;
                 } finally {
                     if (fos != null) {
                         try {
@@ -291,11 +302,14 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
             }
         } else {
             Log.e("capture", "capture failure");
+            isResult = false;
         }
+        return isResult;
     }
 
     /**
      * 扫描更新图库图片
+     *
      * @param context
      * @param path
      */
@@ -307,8 +321,14 @@ public class VlcPlayerView extends FrameLayout implements IVLCVout.Callback {
     /**
      * 启动另一个界面，实现全屏播放
      */
-    public void fullScreen() {
-        Player2Activity.go(getContext(), url);
+    public boolean fullScreen() {
+        boolean result = true;
+        try {
+            Player2Activity.go(getContext(), url);
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
     }
 
     /*************

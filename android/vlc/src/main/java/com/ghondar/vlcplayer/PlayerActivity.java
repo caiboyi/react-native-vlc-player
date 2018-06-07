@@ -32,7 +32,7 @@ import org.videolan.libvlc.util.VLCUtil;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-
+@Deprecated
 public class PlayerActivity extends Activity implements IVLCVout.Callback {
 
     public final static String LOCATION = "srcVideo";

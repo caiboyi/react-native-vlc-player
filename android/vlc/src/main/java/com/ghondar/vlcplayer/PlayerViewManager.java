@@ -17,13 +17,13 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
+public class PlayerViewManager extends SimpleViewManager<PlayerView> {
     public static final String REACT_CLASS = "VideoView";
-	
-	public static final String VIDEO_CONTROLL = "VideoControll";
+
+    public static final String VIDEO_CONTROLL = "VideoControll";
     public static final String ACTION = "action";
-	
-	
+
+
     public static final String COMMAND_PLAY_NAME = "play";
     public static final String COMMAND_PAUSE_NAME = "pause";
     public static final String COMMAND_FULL_SCREEN_NAME = "full_screen";
@@ -39,16 +39,16 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
     public static final int COMMAND_RECORD_VIDEO_END_ID = 6;
 
 
-    private VlcPlayerView mVlcPlayerView;
+    private PlayerView mVlcPlayerView;
     private String url;
-	private ReactContext mContext;
+    private ReactContext mContext;
     public LifecycleEventListener mActLifeCallback = new LifecycleEventListener() {
         @Override
         public void onHostResume() {
             // 避免在onResume 阶段 黑屏  导致无法继续播放
             if (mVlcPlayerView != null) {
 //                mVlcPlayerView.releasePlayer();
-                mVlcPlayerView.resumePlay();
+                mVlcPlayerView.resume();
             }
             Log.e("PlayerViewManager", "onHostResume ");
         }
@@ -56,7 +56,7 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
         @Override
         public void onHostPause() {
             if (mVlcPlayerView != null) {
-                mVlcPlayerView.pausePlay();
+                mVlcPlayerView.pause();
             }
             Log.e("PlayerViewManager", "onHostPause ");
         }
@@ -64,7 +64,7 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
         @Override
         public void onHostDestroy() {
             if (mVlcPlayerView != null) {
-                mVlcPlayerView.releasePlayer();
+                mVlcPlayerView.stop();
             }
             Log.e("PlayerViewManager", "onHostDestroy ");
         }
@@ -76,11 +76,14 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
     }
 
     @Override
-    protected VlcPlayerView createViewInstance(ThemedReactContext reactContext) {
-		mContext = reactContext;
+    protected PlayerView createViewInstance(ThemedReactContext reactContext) {
+        mContext = reactContext;
         reactContext.addLifecycleEventListener(mActLifeCallback);
-        mVlcPlayerView = new VlcPlayerView(reactContext);
-        mVlcPlayerView.toggleFullscreen(true);
+        mVlcPlayerView = new PlayerView(reactContext);
+        return mVlcPlayerView;
+    }
+
+    public PlayerView getVlcPlayerView() {
         return mVlcPlayerView;
     }
 
@@ -91,10 +94,10 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
      * @param url
      */
     @ReactProp(name = "url")
-    public void setUrl(VlcPlayerView view, String url) {
+    public void setUrl(PlayerView view, String url) {
         this.url = url;
-        view.releasePlayer();
-        view.playMovie(url);
+        view.setUrl(url);
+        view.starPlay();
     }
 
     @Nullable
@@ -108,26 +111,31 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
                 COMMAND_RECORD_VIDEO_END_NAME, COMMAND_RECORD_VIDEO_END_ID);
     }
 
-@Override
-    public void receiveCommand(VlcPlayerView root, int commandId, @Nullable ReadableArray args) {
+    @Override
+    public void receiveCommand(PlayerView root, int commandId, @Nullable ReadableArray args) {
         super.receiveCommand(root, commandId, args);
         Log.e("PlayerViewManager", "receiveCommand:" + commandId);
         switch (commandId) {
             case COMMAND_PLAY_ID:
-                root.resumePlay();
+                root.starPlay();
                 sendEvent(mContext, COMMAND_PLAY_NAME, true);
                 break;
             case COMMAND_PAUSE_ID:
-                root.pausePlay();
+                root.pause();
                 sendEvent(mContext, COMMAND_PAUSE_NAME, true);
                 break;
             case COMMAND_FULL_SCREEN_ID:
-                root.fullScreen();
+                Player2Activity.go(mContext, url);
                 sendEvent(mContext, COMMAND_FULL_SCREEN_NAME, true);
                 break;
             case COMMAN_CAPTURE_ID:
-                root.capturePic();
-                sendEvent(mContext, COMMAND_CAPTURE_NAME, true);
+                try {
+                    boolean result = root.capturePic();
+                    sendEvent(mContext, COMMAND_CAPTURE_NAME, result);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    sendEvent(mContext, COMMAND_CAPTURE_NAME, false);
+                }
                 break;
             case COMMAND_RECORD_VIDEO_START_ID:
 
@@ -151,4 +159,5 @@ public class PlayerViewManager extends SimpleViewManager<VlcPlayerView> {
         event.putBoolean(ACTION, isSuccess);
         return event;
     }
+
 }

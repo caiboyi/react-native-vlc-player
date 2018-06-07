@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactMethod;
 
 import org.videolan.libvlc.LibVLC;
 
+@Deprecated
 public class VLCPlayer extends ReactContextBaseJavaModule {
 
     private ReactApplicationContext context;
@@ -20,7 +21,7 @@ public class VLCPlayer extends ReactContextBaseJavaModule {
 
         try {
             mLibVLC = new LibVLC();
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             Toast.makeText(reactContext,
                     "Error initializing the libVLC multimedia framework!",
                     Toast.LENGTH_LONG).show();

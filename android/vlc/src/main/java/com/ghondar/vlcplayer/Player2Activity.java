@@ -17,7 +17,7 @@ public class Player2Activity extends Activity {
     }
 
     public final static String LOCATION = "srcVideo";
-    private VlcPlayerView playerView;
+    private PlayerView playerView;
     private String url;
 
     @Override
@@ -26,19 +26,19 @@ public class Player2Activity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         Log.e("Player", "this is Player2Activity");
-        playerView = new VlcPlayerView(this);
-        playerView.toggleFullscreen(true);
+        playerView = new PlayerView(this);
         setContentView(playerView);
         Intent intent = getIntent();
         url = intent.getExtras().getString(LOCATION);
-        playerView.playMovie(url);
+        playerView.setUrl(url);
+        playerView.starPlay();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (playerView != null) {
-            playerView.resumePlay();
+            playerView.resume();
         }
         Log.e("Player2Activity", " onresume");
     }
@@ -47,7 +47,7 @@ public class Player2Activity extends Activity {
     protected void onPause() {
         super.onPause();
         if (playerView != null) {
-            playerView.pausePlay();
+            playerView.pause();
         }
         Log.e("Player2Activity", "pause");
     }
@@ -55,9 +55,11 @@ public class Player2Activity extends Activity {
     @Override
     protected void onDestroy() {
         if (playerView != null) {
-            playerView.releasePlayer();
+            playerView.stop();
         }
         super.onDestroy();
         Log.e("Player2Activity", "destroy");
     }
+
+
 }
