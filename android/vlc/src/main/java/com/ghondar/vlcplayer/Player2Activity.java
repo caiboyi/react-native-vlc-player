@@ -4,9 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.TextureView;
 import android.view.WindowManager;
+
+import com.xmwsh.videolib.media.IRenderView;
+import com.xmwsh.videolib.media.IjkVideoView;
+
+import java.lang.reflect.Field;
 
 public class Player2Activity extends Activity {
 
@@ -38,7 +45,7 @@ public class Player2Activity extends Activity {
     protected void onResume() {
         super.onResume();
         if (playerView != null) {
-            playerView.resume();
+            playerView.starPlay();
         }
         Log.e("Player2Activity", " onresume");
     }
@@ -61,5 +68,15 @@ public class Player2Activity extends Activity {
         Log.e("Player2Activity", "destroy");
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
 
+    @Override
+    public void finish() {
+        super.finish();
+        Process.killProcess(Process.myPid());
+    }
 }

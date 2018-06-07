@@ -12,6 +12,8 @@
         <activity
             android:name="com.ghondar.vlcplayer.Player2Activity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:process=":video"
+            />
     </application>
 </manifest>
