@@ -42,19 +42,24 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
     private PlayerView mVlcPlayerView;
     private String url;
     private ReactContext mContext;
+    private boolean isPause = false;
     public LifecycleEventListener mActLifeCallback = new LifecycleEventListener() {
         @Override
         public void onHostResume() {
             // 避免在onResume 阶段 黑屏  导致无法继续播放
             if (mVlcPlayerView != null) {
-//                mVlcPlayerView.releasePlayer();
                 mVlcPlayerView.resume();
+                if(isPause){
+                    isPause = false;
+                    mVlcPlayerView.starPlay();
+                }
             }
             Log.e("PlayerViewManager", "onHostResume ");
         }
 
         @Override
         public void onHostPause() {
+            isPause = true;
             if (mVlcPlayerView != null) {
                 mVlcPlayerView.pause();
             }
