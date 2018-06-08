@@ -84,12 +84,19 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         mVlcPlayerView.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
-                sendErrorEvent(mContext);
+                sendErrorEvent(mContext, "play_error");
                 return true;
+            }
+        });
+        mVlcPlayerView.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(IMediaPlayer iMediaPlayer) {
+                sendErrorEvent(mContext, "load_success");
             }
         });
         return mVlcPlayerView;
     }
+
 
     public PlayerView getVlcPlayerView() {
         return mVlcPlayerView;
@@ -106,6 +113,7 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         this.url = url;
         view.setUrl(url);
         view.starPlay();
+        sendErrorEvent(mContext, "load_ing");
     }
 
     @Nullable
@@ -162,10 +170,10 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         }
     }
 
-    private void sendErrorEvent(ReactContext mContext) {
+    private void sendErrorEvent(ReactContext mContext, String key) {
         if (mContext != null) {
             mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit(VIDEO_ERROR, createConnectivityEventMap(ACTION, true));
+                    .emit(VIDEO_ERROR, createConnectivityEventMap(key, true));
         }
     }
 

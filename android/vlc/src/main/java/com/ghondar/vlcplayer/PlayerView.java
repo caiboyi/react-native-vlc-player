@@ -92,8 +92,12 @@ public class PlayerView extends FrameLayout implements View.OnClickListener {
         this.mVideoView.setVideoPath(this.mUrl);
     }
 
-    public void setOnErrorListener(IMediaPlayer.OnErrorListener listener){
+    public void setOnErrorListener(IMediaPlayer.OnErrorListener listener) {
         this.mVideoView.setOnErrorListener(listener);
+    }
+
+    public void setOnPreparedListener(IMediaPlayer.OnPreparedListener l) {
+        this.mVideoView.setOnPreparedListener(l);
     }
 
     public void starPlay() {
@@ -107,7 +111,7 @@ public class PlayerView extends FrameLayout implements View.OnClickListener {
             IRenderView mIRenderView = (IRenderView) mRenderViewField.get(mVideoView);
             if (mIRenderView != null && mIRenderView.getView() instanceof TextureView) {
                 return capturePic((TextureView) mIRenderView.getView());
-            }else{
+            } else {
                 Log.e("playview", "mRenderView not instance of TextureView");
             }
         }
