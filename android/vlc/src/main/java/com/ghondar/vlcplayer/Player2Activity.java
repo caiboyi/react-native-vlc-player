@@ -99,7 +99,7 @@ public class Player2Activity extends Activity {
     @Override
     public void finish() {
         super.finish();
-        Process.killProcess(Process.myPid());
+//        Process.killProcess(Process.myPid());
     }
 
     private void sendErrorEvent(String key) {
