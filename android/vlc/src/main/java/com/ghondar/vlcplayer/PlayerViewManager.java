@@ -1,5 +1,11 @@
 package com.ghondar.vlcplayer;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -20,8 +26,9 @@ import javax.annotation.Nullable;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 public class PlayerViewManager extends SimpleViewManager<PlayerView> {
+    public static final String INTENT_ACTIOMN = "com.wsh.full_play_action";
+    public static final String FULL_PLAY_ERROR = "VideoFullPlayError";
     public static final String REACT_CLASS = "VideoView";
-
     public static final String VIDEO_CONTROLL = "VideoControll";
     public static final String VIDEO_ERROR = "VideoError";
     public static final String ACTION = "action";
@@ -44,6 +51,7 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
     private PlayerView mVlcPlayerView;
     private String url;
     private ReactContext mContext;
+    private LocalMsgReceiver mLocalMsgReceiver;
     public LifecycleEventListener mActLifeCallback = new LifecycleEventListener() {
         @Override
         public void onHostResume() {
@@ -64,6 +72,7 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
 
         @Override
         public void onHostDestroy() {
+            unBindMsgReceiver();
             if (mVlcPlayerView != null) {
                 mVlcPlayerView.stop();
             }
@@ -84,16 +93,17 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         mVlcPlayerView.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
-                sendErrorEvent(mContext, "play_error");
+                sendErrorEvent(mContext, VIDEO_ERROR, "play_error");
                 return true;
             }
         });
         mVlcPlayerView.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
-                sendErrorEvent(mContext, "load_success");
+                sendErrorEvent(mContext, VIDEO_ERROR, "load_success");
             }
         });
+        bindMsgReceiver();
         return mVlcPlayerView;
     }
 
@@ -113,7 +123,7 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         this.url = url;
         view.setUrl(url);
         view.starPlay();
-        sendErrorEvent(mContext, "load_ing");
+        sendErrorEvent(mContext, VIDEO_ERROR, "load_ing");
     }
 
     @Nullable
@@ -170,10 +180,10 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         }
     }
 
-    private void sendErrorEvent(ReactContext mContext, String key) {
+    private void sendErrorEvent(ReactContext mContext, String type, String key) {
         if (mContext != null) {
             mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit(VIDEO_ERROR, createConnectivityEventMap(key, true));
+                    .emit(type, createConnectivityEventMap(key, true));
         }
     }
 
@@ -181,6 +191,32 @@ public class PlayerViewManager extends SimpleViewManager<PlayerView> {
         WritableMap event = new WritableNativeMap();
         event.putBoolean(key, isSuccess);
         return event;
+    }
+
+    private void bindMsgReceiver() {
+        if (mLocalMsgReceiver == null) {
+            mLocalMsgReceiver = new LocalMsgReceiver();
+        }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(INTENT_ACTIOMN);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mLocalMsgReceiver, filter);
+    }
+
+    private void unBindMsgReceiver() {
+        if (mLocalMsgReceiver != null) {
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mLocalMsgReceiver);
+        }
+    }
+
+    private class LocalMsgReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (TextUtils.equals(INTENT_ACTIOMN, intent.getAction())) {
+                String key = intent.getStringExtra("key");
+                sendErrorEvent(mContext, VIDEO_ERROR, key);
+            }
+        }
     }
 
 }

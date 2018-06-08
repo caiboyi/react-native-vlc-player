@@ -6,16 +6,24 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.WindowManager;
 
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.xmwsh.videolib.media.IRenderView;
 import com.xmwsh.videolib.media.IjkVideoView;
 
 import java.lang.reflect.Field;
 
+import tv.danmaku.ijk.media.player.IMediaPlayer;
+
 public class Player2Activity extends Activity {
+
 
     public static void go(Context context, String url) {
         Intent intent = new Intent(context, Player2Activity.class);
@@ -37,7 +45,21 @@ public class Player2Activity extends Activity {
         setContentView(playerView);
         Intent intent = getIntent();
         url = intent.getExtras().getString(LOCATION);
+        playerView.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(IMediaPlayer iMediaPlayer) {
+                sendErrorEvent("load_success");
+            }
+        });
+        playerView.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
+                sendErrorEvent("play_error");
+                return true;
+            }
+        });
         playerView.setUrl(url);
+        sendErrorEvent("load_ing");
         playerView.starPlay();
     }
 
@@ -79,4 +101,11 @@ public class Player2Activity extends Activity {
         super.finish();
         Process.killProcess(Process.myPid());
     }
+
+    private void sendErrorEvent(String key) {
+        Intent intent = new Intent(PlayerViewManager.INTENT_ACTIOMN);
+        intent.putExtra("key", key);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
 }
