@@ -10,6 +10,37 @@
 
 ##### Android
 
+须在Application中初始化视频sdk 
+ VideoMgr.initIVMSSDK(this);
+
+ 如果要添加原生控件须在Activity中加react-native页面和初始化
+ @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main_activity);
+        LinearLayout layout = (LinearLayout) findViewById(R.id.layout);
+        tvToolBar = (TextView) findViewById(R.id.tvToolBar);
+        List<ReactPackage> list = Arrays.<ReactPackage>asList(
+                new MainReactPackage(),
+                new AnExampleReactPackage(),
+                new VLCPlayerPackage(),
+                new ScreenPackage(tvToolBar)
+        );
+
+        ReactRootView mReactRootView = new ReactRootView(this);
+        mReactInstanceManager = ReactInstanceManager.builder()
+                .setApplication(getApplication())
+                .setBundleAssetName("index.bundle")
+                .setJSMainModulePath("index")
+                .addPackages(list)
+                .setUseDeveloperSupport(BuildConfig.DEBUG)
+                .setInitialLifecycleState(LifecycleState.RESUMED)
+                .build();
+        //这里的ReactNativeView对应index.android.js中AppRegistry.registerComponent('ReactNativeView', () => Root)的ReactNativeView
+        mReactRootView.startReactApplication(mReactInstanceManager, "AwesomeProject", null);
+        layout.addView(mReactRootView);
+    }
+
 ##### Install via npm
 `npm i react-native-vlc-player --save`
 
