@@ -30,4 +30,5 @@ dependencies {
     compile 'de.mrmaffen:vlc-android-sdk:1.9.8'
 //    compile project(':videolib001')
     compile(name: 'videolib001', ext: 'aar')
+    compile(name: 'ivmsvideolib-001', ext: 'aar')
 }

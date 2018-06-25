@@ -1,4 +1,4 @@
-var { NativeModules } = require('react-native');
-var { VLCPlayer } = NativeModules;
+import { AppRegistry } from 'react-native';
+import App from './App';
 
-module.exports = VLCPlayer;
+AppRegistry.registerComponent('AwesomeProject', () => App);
