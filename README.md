@@ -10,8 +10,6 @@
 
 ##### Android
 
-须在Application中初始化视频sdk 
- VideoMgr.initIVMSSDK(this);
 
  如果要添加原生控件须在Activity中加react-native页面和初始化
  @Override

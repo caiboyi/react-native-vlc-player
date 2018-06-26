@@ -1,5 +1,6 @@
 package com.ghondar.vlcplayer;
 
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,11 +19,14 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.xmwsh.ivmsvideolib.utils.VideoMgr;
 import com.xmwsh.ivmsvideolib.widget.VideoPlayerView;
 
 import java.util.Map;
 
 import javax.annotation.Nullable;
+
+import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
     public static final String INTENT_ACTIOMN = "com.wsh.full_play_action";
@@ -135,6 +139,7 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
     @Override
     protected VideoPlayerView createViewInstance(ThemedReactContext reactContext) {
         mContext = reactContext;
+        VideoMgr.initIVMSSDK(reactContext.getCurrentActivity().getApplication());
         reactContext.addLifecycleEventListener(mActLifeCallback);
         mVlcPlayerView = new VideoPlayerView(reactContext);
 //        mVlcPlayerView.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
