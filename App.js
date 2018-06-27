@@ -153,6 +153,18 @@ export default class App extends Component<Props> {
   }
 
 
+  _press_show_actionbar =()=>{
+    
+  
+    this.video.get_actionbar_height();
+    this.subscription = DeviceEventEmitter.addListener('VideoControll', function  (param) {
+
+        var actionBarHeight = param['getheight'];
+        console.log("getheight : "+actionBarHeight);
+      });
+      
+  }
+
   
   render() {  
     return (
@@ -163,7 +175,14 @@ export default class App extends Component<Props> {
     <VideoView 
       ref={(video)=>{this.video = video}}
       style={ {width: this.state.width, height: this.state.height}}
-      url={'rtsp://admin:admin_123@10.17.5.149:443/Streaming/Channels/101/1/4'}>
+      url={'rtsp://admin:admin_123@10.17.5.149:443/Streaming/Channels/101/1/4'}
+      username = {'admin'}
+      password = {'admin_123'}
+      ip = {'10.17.5.149:443'}
+      camera_parent_node = {1}
+      cameraid = {'4'}
+      show_actionbar={true}
+      >
     </VideoView>  
         
 		<Text style={styles.instructions} onPress={this._press_play}>
@@ -192,7 +211,7 @@ export default class App extends Component<Props> {
           停止录频
     </Text>   
 
-     <Text onPress={()=> this.getStatusActionBarHeight()}>测试</Text>
+     <Text onPress={this._press_show_actionbar}>测试</Text>
 
       </View>
     );
@@ -212,18 +231,17 @@ export default class App extends Component<Props> {
     }
 
 
-    /**
-    *获取状态栏和导航栏高度
-    */
     getStatusActionBarHeight(){
       NativeModules.ScreenModule.getActionBarHeight(true).then(e=>{
-          console.log("height : "+e.height);
+        var actionBarHeight = e.height;
+          console.log("actionBarHeight : "+actionBarHeight);
         }).catch(error=>{
           console.log(error);
         });
 
     }
 
+  
 
 }
 

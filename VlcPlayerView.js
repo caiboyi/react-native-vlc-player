@@ -15,7 +15,6 @@ class VideoView extends Component{
 	
 	constructor(props){
 		super(props);
-		//this.refs[RCT_VIDEO_REF] = this.refs[RCT_VIDEO_REF].bind(this);
 	}
 	
 	/**
@@ -179,8 +178,19 @@ class VideoView extends Component{
 		);
 	}
 
-	
+
+    /**获取高度*/
+	get_actionbar_height=()=> {
+		UIManager.dispatchViewManagerCommand(
+			findNodeHandle(this),
+			UIManager.VideoView.Commands.actionbar_height,
+			null
+		);
+
+	}
+
 	render(){
+
         return <RCTVideoView
             {...this.props}
             ref = {RCT_VIDEO_REF}
@@ -189,9 +199,26 @@ class VideoView extends Component{
 }
 
 VideoView.name = "VideoView";
+
+VideoView.defaultProps = {
+  url : 'rtsp://admin:admin_123@10.17.5.149:443/Streaming/Channels/101/1/4',
+  username : 'admin',
+  password : 'admin_123',
+  ip : '10.17.5.149:443',
+  camera_parent_node : 1,
+  cameraid : '4',
+  show_actionbar : false
+};
+
 VideoView.propTypes = {
 	style: PropTypes.style,
-	url : PropTypes.string,
+	url : PropTypes.string.isRequired,
+	username : PropTypes.string.isRequired,
+	password : PropTypes.string.isRequired,
+	ip : PropTypes.string.isRequired,
+	camera_parent_node : PropTypes.number.isRequired,
+	cameraid : PropTypes.string.isRequired,
+	show_actionbar : PropTypes.bool,
 	...View.propTypes,
 };
 

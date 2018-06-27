@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactContext;
@@ -25,8 +26,6 @@ import com.xmwsh.ivmsvideolib.widget.VideoPlayerView;
 import java.util.Map;
 
 import javax.annotation.Nullable;
-
-import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
     public static final String INTENT_ACTIOMN = "com.wsh.full_play_action";
@@ -74,6 +73,8 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
     //自动
     public static final String COMMAND_AUTO_NAME = "auto";
 
+    public static final String COMMAND_GET_ACTIONBAR_HEIGHT_NAME = "actionbar_height";
+
     public static final int COMMAND_PLAY_ID = 1;
     public static final int COMMAND_PAUSE_ID = 2;
     public static final int COMMAND_FULL_SCREEN_ID = 3;
@@ -94,14 +95,21 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
     public static final int COMMAND_TO_FAR_FOCUS_ID = 18;
     public static final int COMMAND_AUTO_ID = 19;
     public static final int COMMAND_STOP_PLAY_ID = 20;
+    public static final int COMMAND_GET_ACTIONBAR_HEIGHT_ID = 21;
 
 
-
-
+    private View mActionBar;
     private VideoPlayerView mVlcPlayerView;
     private String url;
     private ReactContext mContext;
     private LocalMsgReceiver mLocalMsgReceiver;
+    private boolean isShowActionBar = false;
+    private String mUserName;
+    private String mPassword;
+    private String mIP;
+    private String mCameraId;
+    private int mNode;
+
     public LifecycleEventListener mActLifeCallback = new LifecycleEventListener() {
         @Override
         public void onHostResume() {
@@ -129,17 +137,25 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
             }
             Log.e("PlayerViewManager", "onHostDestroy ");
         }
+
+
     };
+
 
     @Override
     public String getName() {
         return REACT_CLASS;
     }
 
+    public PlayerViewManager(View v) {
+        super();
+        this.mActionBar = v;
+    }
+
     @Override
     protected VideoPlayerView createViewInstance(ThemedReactContext reactContext) {
         mContext = reactContext;
-        VideoMgr.initIVMSSDK(reactContext.getCurrentActivity().getApplication());
+        VideoMgr.initIVMSSDK((Application) reactContext.getApplicationContext());
         reactContext.addLifecycleEventListener(mActLifeCallback);
         mVlcPlayerView = new VideoPlayerView(reactContext);
 //        mVlcPlayerView.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
@@ -170,15 +186,71 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
      * @param view
      * @param url
      */
-    @ReactProp(name = "url")
+    @ReactProp(name = "url" )
     public void setUrl(VideoPlayerView view, String url) {
         this.url = url;
         Log.e("test","setUrl url : "+url);
         view.setLivePlayUrl(url);
-        //view.setUrl(url);
-        //view.starPlay();
+
         sendErrorEvent(mContext, VIDEO_ERROR, "load_ing");
     }
+
+    /**
+     * 用户名
+     * @param view
+     * @param name
+     */
+    @ReactProp(name = "username")
+    public void setUsername(VideoPlayerView view, String name) {
+        this.mUserName = name;
+    }
+
+    /**
+     * 密码
+     * @param view
+     * @param password
+     */
+    @ReactProp(name = "password")
+    public void setPassword(VideoPlayerView view, String password) {
+        this.mPassword = password;
+    }
+
+    /**
+     * ip
+     * @param view
+     * @param ip
+     */
+    @ReactProp(name = "ip")
+    public void setIP(VideoPlayerView view, String ip) {
+        this.mIP = ip;
+    }
+
+    /**
+     * 摄像头id
+     * @param view
+     * @param cameraId
+     */
+    @ReactProp(name = "cameraid")
+    public void setCameraId(VideoPlayerView view, String cameraId) {
+        this.mCameraId = cameraId;
+    }
+
+    /**
+     * 摄像头父节点
+     * @param view
+     * @param node
+     */
+    @ReactProp(name = "camera_parent_node")
+    public void cameraParentNode(VideoPlayerView view,int node) {
+        this.mNode = node;
+    }
+
+
+    @ReactProp(name = "show_actionbar")
+    public void setShowActionBar(VideoPlayerView view,boolean isShow) {
+        this.isShowActionBar = isShow;
+    }
+
 
     @Nullable
     @Override
@@ -204,6 +276,7 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
         map.put(COMMAND_RECORD_VIDEO_START_NAME,COMMAND_RECORD_VIDEO_START_ID);
         map.put(COMMAND_RECORD_VIDEO_END_NAME,COMMAND_RECORD_VIDEO_END_ID);
         map.put(COMMAND_STOP_PLAY_NAME,COMMAND_STOP_PLAY_ID);
+        map.put(COMMAND_GET_ACTIONBAR_HEIGHT_NAME,COMMAND_GET_ACTIONBAR_HEIGHT_ID);
         return map;
     }
 
@@ -213,7 +286,14 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
         Log.e("PlayerViewManager", "receiveCommand:" + commandId);
         switch (commandId) {
             case COMMAND_PLAY_ID://开始播放
-                root.startPlay();
+                if (root.isLogin()) {
+                    root.startPlay();
+                }else {
+                    String url = "rtsp://"+mUserName+":"+mPassword+"@"+mIP
+                            +"/Streaming/Channels/101/"+mNode+"/"+mCameraId;
+                    Log.e("test","play url : "+url);
+                    root.setLivePlayUrl(url);
+                }
                 sendEvent(mContext, ACTION, true);
                 break;
             case COMMAND_STOP_PLAY_ID://停止播放
@@ -292,6 +372,12 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
                 root.setStreamType(3);
                 sendEvent(mContext, ACTION, true);
                 break;
+            case COMMAND_GET_ACTIONBAR_HEIGHT_ID:
+                WritableMap event = new WritableNativeMap();
+                event.putInt("getheight",getActionBarHeight());
+                mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                        .emit(VIDEO_CONTROLL, event);
+                break;
             default:
         }
     }
@@ -342,7 +428,19 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
         }
     }
 
-
+    //获取状态栏和导航栏
+    private int getActionBarHeight() {
+        int height = DensityUtil.getStatusHeight(mContext);
+        if (mActionBar != null) {
+            if (isShowActionBar) {
+                mActionBar.setVisibility(View.VISIBLE);
+            }else {
+                mActionBar.setVisibility(View.GONE);
+            }
+            height += mActionBar.getHeight();
+        }
+        return DensityUtil.px2dip(mContext,height);
+    }
 
 
 }
