@@ -152,6 +152,11 @@ public class PlayerViewManager extends SimpleViewManager<VideoPlayerView> {
         this.mActionBar = v;
     }
 
+    public PlayerViewManager() {
+        super();
+    }
+
+
     @Override
     protected VideoPlayerView createViewInstance(ThemedReactContext reactContext) {
         mContext = reactContext;

@@ -10,8 +10,17 @@
 
 ##### Android
 
+ 如果在MainApplication初始化须加在
 
- 如果要添加原生控件须在Activity中加react-native页面和初始化
+ @Override
+    protected List<ReactPackage> getPackages() {
+      return Arrays.<ReactPackage>asList(
+          new MainReactPackage(),new VLCPlayerPackage()
+      );
+    }
+
+
+ 如果是在Activity中加react-native页面和初始化
  @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,12 +53,8 @@
 
 ##### Add dependency to `android/settings.gradle`
 ```
-...
-include ':libvlc'
-project(':libvlc').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vlc-player/android/libvlc')
-
-include ':react-native-vlc-player'
-project(':react-native-vlc-player').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vlc-player/android/vlc')
+include ':vlc'
+project(':vlc').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vlc-player/android/vlc')
 ```
 
 ##### Add `android/app/build.gradle`
@@ -57,9 +62,26 @@ project(':react-native-vlc-player').projectDir = new File(rootProject.projectDir
 ...
 dependencies {
     ...
-    compile project(':react-native-vlc-player')
+    compile project(':vlc')
 }
 ```
+##### Add 'android/build.gradle'
+
+...
+allprojects {
+    repositories {
+        ...
+        flatDir {
+            // 由于Library module中引用了 youkuplayer 库的 aar，在多 module 的情况下，
+            // 其他的module编译会报错，所以需要在所有工程的repositories
+            // 下把Library module中的libs目录添加到依赖关系中
+            dirs project(':vlc').file('libs')
+        }
+    }
+}
+
+...
+
 ##### Register module in `MainApplication.java`
 ```Java
 import com.ghondar.vlcplayer.*;  // <--- import
