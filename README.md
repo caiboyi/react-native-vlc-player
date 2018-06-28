@@ -10,8 +10,10 @@
 
 ##### Android
 
-如果在MainApplication初始化须加在
+如果在MainApplication初始化须加在（适用于单纯 React Native App）
 ```
+import com.ghondar.vlcplayer.*;
+
  @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
@@ -20,7 +22,7 @@
     }
 ```
 
-如果是在Activity中加react-native页面和初始化
+如果是在Activity中加react-native页面和初始化（适用于 React Native/ Android Hybrid App）
 ```
  @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +52,7 @@
     }
 ```
 ##### Install via npm
-`npm i react-native-vlc-player --save`
+`npm i https://github.com/caiboyi/react-native-vlc-player/ --save`
 
 ##### Add dependency to `android/settings.gradle`
 ```
