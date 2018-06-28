@@ -10,17 +10,18 @@
 
 ##### Android
 
- 如果在MainApplication初始化须加在
-
+如果在MainApplication初始化须加在
+```
  @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),new VLCPlayerPackage()
       );
     }
+```
 
-
- 如果是在Activity中加react-native页面和初始化
+如果是在Activity中加react-native页面和初始化
+```
  @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +48,7 @@
         mReactRootView.startReactApplication(mReactInstanceManager, "AwesomeProject", null);
         layout.addView(mReactRootView);
     }
-
+```
 ##### Install via npm
 `npm i react-native-vlc-player --save`
 
@@ -67,7 +68,7 @@ dependencies {
 ```
 ##### Add 'android/build.gradle'
 
-...
+```
 allprojects {
     repositories {
         ...
@@ -79,8 +80,7 @@ allprojects {
         }
     }
 }
-
-...
+```
 
 ##### Register module in `MainApplication.java`
 ```Java
@@ -135,7 +135,7 @@ AppRegistry.registerComponent('example', () => Example);
 ```
 
 ###### App.js
-
+```
 var VideoView = require('./VlcPlayerView');
 
 export default class App extends Component<Props> {
@@ -161,9 +161,9 @@ render() {
 
 
   }
-
+```
 ###### 视频接口文件 VlcPlayerView.js
-
+```
 //VlcPlayerView
 
 import PropTypes from 'prop-types'
@@ -411,7 +411,7 @@ this.subscription = DeviceEventEmitter.addListener('VideoControll', function  (p
         var actionBarHeight = param['getheight'];
         console.log("getheight : "+actionBarHeight);
       });
-
+```
 
 #### LICENSE
 MIT
