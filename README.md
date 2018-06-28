@@ -4,8 +4,6 @@
 
 *Only Android support now.*
 
-![](https://media.giphy.com/media/l4hLFPgXI7ipAAMGk/giphy.gif)
-
 #### Integrate
 
 ##### Android
@@ -406,13 +404,14 @@ module.exports = VideoView;
 
 // module.exports = requireNativeComponent('VlcPlayerView', oface);
 
+```
 
-调用获取状态栏和标题高度返回值要注册回调监听
+在 App.js 中调用获取状态栏和标题高度返回值要注册回调监听
+```
 this.subscription = DeviceEventEmitter.addListener('VideoControll', function  (param) {
-
-        var actionBarHeight = param['getheight'];
-        console.log("getheight : "+actionBarHeight);
-      });
+  var actionBarHeight = param['getheight'];
+  console.log("getheight : "+actionBarHeight);
+});
 ```
 
 #### LICENSE
