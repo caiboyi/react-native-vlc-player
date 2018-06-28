@@ -4,13 +4,13 @@
 
 *Only Android support now.*
 
-![](https://media.giphy.com/media/l4hLFPgXI7ipAAMGk/giphy.gif)
-
 #### Integrate
 
 ##### Android
 
- 如果在MainApplication初始化须加在
+如果在MainApplication初始化须加在（适用于单纯 React Native App）
+```
+import com.ghondar.vlcplayer.*;
 
  @Override
     protected List<ReactPackage> getPackages() {
@@ -18,9 +18,10 @@
           new MainReactPackage(),new VLCPlayerPackage()
       );
     }
+```
 
-
- 如果是在Activity中加react-native页面和初始化
+如果是在Activity中加react-native页面和初始化（适用于 React Native/ Android Hybrid App）
+```
  @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,9 +48,9 @@
         mReactRootView.startReactApplication(mReactInstanceManager, "AwesomeProject", null);
         layout.addView(mReactRootView);
     }
-
+```
 ##### Install via npm
-`npm i react-native-vlc-player --save`
+`npm i https://github.com/caiboyi/react-native-vlc-player/ --save`
 
 ##### Add dependency to `android/settings.gradle`
 ```
@@ -67,7 +68,7 @@ dependencies {
 ```
 ##### Add 'android/build.gradle'
 
-...
+```
 allprojects {
     repositories {
         ...
@@ -79,8 +80,7 @@ allprojects {
         }
     }
 }
-
-...
+```
 
 ##### Register module in `MainApplication.java`
 ```Java
@@ -135,7 +135,7 @@ AppRegistry.registerComponent('example', () => Example);
 ```
 
 ###### App.js
-
+```
 var VideoView = require('./VlcPlayerView');
 
 export default class App extends Component<Props> {
@@ -161,9 +161,9 @@ render() {
 
 
   }
-
+```
 ###### 视频接口文件 VlcPlayerView.js
-
+```
 //VlcPlayerView
 
 import PropTypes from 'prop-types'
@@ -404,14 +404,15 @@ module.exports = VideoView;
 
 // module.exports = requireNativeComponent('VlcPlayerView', oface);
 
+```
 
-调用获取状态栏和标题高度返回值要注册回调监听
+在 App.js 中调用获取状态栏和标题高度返回值要注册回调监听
+```
 this.subscription = DeviceEventEmitter.addListener('VideoControll', function  (param) {
-
-        var actionBarHeight = param['getheight'];
-        console.log("getheight : "+actionBarHeight);
-      });
-
+  var actionBarHeight = param['getheight'];
+  console.log("getheight : "+actionBarHeight);
+});
+```
 
 #### LICENSE
 MIT
